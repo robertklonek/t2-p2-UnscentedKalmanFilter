@@ -9,6 +9,3 @@ install-ubuntu.sh
 install-mac.sh
 set_git.sh
 cmakepatch.txt
-
-#test
-src/
