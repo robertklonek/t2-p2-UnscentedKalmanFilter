@@ -5,7 +5,17 @@
 #include "measurement_package.h"
 
 class UKF {
- public:
+  private:
+  void AugmentedSigmaPoints(MatrixXd* Xsig_out);
+  void PredictSigmaPoints(MatrixXd* Xsig_out, MatrixXd Xsig_aug);
+  void PredictMeanAndCovariance();
+  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out);
+  void PredictLidarMeasurement(VectorXd* z_out, MatrixXd* S_out);
+  void UKF::UpdateStateLaser();
+  void UKF::UpdateStateRadar();
+
+
+  public:
   /**
    * Constructor
    */
