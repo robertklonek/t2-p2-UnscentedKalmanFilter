@@ -62,7 +62,7 @@ UKF::UKF() {
         0, 0, 0, 1, 0,
         0, 0, 0, 0, 1;
 
-  MatrixXd Xsig_pred_ = MatrixXd(n_x, 2 * n_aug + 1);
+  MatrixXd Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
 
   n_x_ = 5;
   n_aug_ = 7;
@@ -149,8 +149,8 @@ void UKF::Prediction(double delta_t) {
   /**  
   * Sigma point prediction 
   */
-  //MatrixXd Xsig_pred = MatrixXd(n_x_, 2 * n_aug_ + 1);
-  PredictSigmaPoints(&Xsig_pred);
+  //MatrixXd Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
+  PredictSigmaPoints(&Xsig_pred_);
   /**  
   * the state x and the state covariance matrix P prediction 
   */
@@ -200,23 +200,23 @@ void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out){
   MatrixXd P_aug = MatrixXd(7, 7);
 
     P_aug.fill(0.0);
-    P_aug.topLeftCorner(n_x, n_x) = P;
+    P_aug.topLeftCorner(n_x_, n_x_) = P;
     MatrixXd Q = MatrixXd(2, 2);
     Q << std_a*std_a, 0,
         0, std_yawdd*std_yawdd;
     P_aug.bottomRightCorner(2, 2) = Q;
 
   // create augmented sigma point matrix
-  MatrixXd Xsig_aug = MatrixXd(n_aug, 2 * n_aug + 1);
+  MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
   
   // create square root matrix
   MatrixXd A = P_aug.llt().matrixL();
 
   // create augmented sigma points
   Xsig_aug.col(0) = x_aug;
-    for (int i = 0; i<n_aug; i++){
-        Xsig_aug.col(i+1) = x_aug + sqrt(lambda+n_aug)*A.col(i);
-        Xsig_aug.col(n_aug+i+1) = x_aug - sqrt(lambda+n_aug)*A.col(i);
+    for (int i = 0; i<n_aug_; i++){
+        Xsig_aug.col(i+1) = x_aug + sqrt(lambda_+n_aug_)*A.col(i);
+        Xsig_aug.col(n_aug_+i+1) = x_aug - sqrt(lambda_+n_aug_)*A.col(i);
     }
 
   *Xsig_out = Xsig_aug;
@@ -235,36 +235,36 @@ void UKF::PredictSigmaPoints(MatrixXd* Xsig_out){
       double std_yawd = Xsig_aug(6, i);
       
       if (yawd_k < 0.001){
-          Xsig_pred(0, i) = Xsig_aug(0, i) + v_k * cos(yaw_k) * delta_t;
+          Xsig_pred_(0, i) = Xsig_aug(0, i) + v_k * cos(yaw_k) * delta_t;
           Xsig_pred(1, i) = Xsig_aug(1, i) + v_k * sin(yaw_k) * delta_t;
       }else{
-          Xsig_pred(0, i) = Xsig_aug(0, i) + (v_k/yawd_k)*(sin(yaw_k + yawd_k * delta_t)-sin(yaw_k));
-          Xsig_pred(1, i) = Xsig_aug(1, i) + (v_k/yawd_k)*(-cos(yaw_k + yawd_k * delta_t)+cos(yaw_k));
+          Xsig_pred_(0, i) = Xsig_aug(0, i) + (v_k/yawd_k)*(sin(yaw_k + yawd_k * delta_t)-sin(yaw_k));
+          Xsig_pred_(1, i) = Xsig_aug(1, i) + (v_k/yawd_k)*(-cos(yaw_k + yawd_k * delta_t)+cos(yaw_k));
       }
-      Xsig_pred(2, i) = Xsig_aug(2, i);
-      Xsig_pred(3, i) = Xsig_aug(3, i) + yawd_k * delta_t;
-      Xsig_pred(4, i) = Xsig_aug(4, i);
+      Xsig_pred_(2, i) = Xsig_aug(2, i);
+      Xsig_pred_(3, i) = Xsig_aug(3, i) + yawd_k * delta_t;
+      Xsig_pred_(4, i) = Xsig_aug(4, i);
       
       //add uncertainty
-      Xsig_pred(0, i) += (1./2.)*delta_t*delta_t*cos(yaw_k)*std_a;
-      Xsig_pred(1, i) += (1./2.)*delta_t*delta_t*sin(yaw_k)*std_a;
-      Xsig_pred(2, i) += delta_t * std_a;
-      Xsig_pred(3, i) += (1./2.)*delta_t*delta_t*std_yawd;
-      Xsig_pred(4, i) += delta_t * std_yawd;
+      Xsig_pred_(0, i) += (1./2.)*delta_t*delta_t*cos(yaw_k)*std_a;
+      Xsig_pred_(1, i) += (1./2.)*delta_t*delta_t*sin(yaw_k)*std_a;
+      Xsig_pred_(2, i) += delta_t * std_a;
+      Xsig_pred_(3, i) += (1./2.)*delta_t*delta_t*std_yawd;
+      Xsig_pred_(4, i) += delta_t * std_yawd;
   }
 }
 
 void UKF::PredictMeanAndCovariance(){
   // predict state mean
-    x = Xsig_pred * weights;
+    x = Xsig_pred_ * weights;
     
     P.fill(0);
     // predict state covariance matrix
-    for (int i = 0; i<Xsig_pred.cols(); i++){
-        Xsig_pred.col(i) -= x;
-        while (Xsig_pred.col(i)(3)> M_PI) Xsig_pred.col(i)(3)-=2.*M_PI;
-        while (Xsig_pred.col(i)(3)<-M_PI) Xsig_pred.col(i)(3)+=2.*M_PI;
-        P += weights(i) * Xsig_pred.col(i) * Xsig_pred.col(i).transpose();
+    for (int i = 0; i<Xsig_pred_.cols(); i++){
+        Xsig_pred_.col(i) -= x;
+        while (Xsig_pred_.col(i)(3)> M_PI) Xsig_pred_.col(i)(3)-=2.*M_PI;
+        while (Xsig_pred_.col(i)(3)<-M_PI) Xsig_pred_.col(i)(3)+=2.*M_PI;
+        P += weights(i) * Xsig_pred_.col(i) * Xsig_pred_.col(i).transpose();
     }
 }
 
@@ -272,7 +272,7 @@ void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out){
       // create matrix for sigma points in measurement space
     int n_z = 3;
 
-    MatrixXd Zsig = MatrixXd(n_z, 2 * n_aug + 1);
+    MatrixXd Zsig = MatrixXd(n_z, 2 * n_aug_ + 1);
     
     // mean predicted measurement
     VectorXd z_pred = VectorXd(n_z);
@@ -283,11 +283,11 @@ void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out){
 
 
     // transform sigma points into measurement space
-    for (int i = 0; i < Xsig_pred.cols(); i++){
-        double p_x = Xsig_pred(0, i);
-        double p_y = Xsig_pred(1, i);
-        double v = Xsig_pred(2, i);
-        double yaw = Xsig_pred(3, i);
+    for (int i = 0; i < Xsig_pred_.cols(); i++){
+        double p_x = Xsig_pred_(0, i);
+        double p_y = Xsig_pred_(1, i);
+        double v = Xsig_pred_(2, i);
+        double yaw = Xsig_pred_(3, i);
         Zsig(0, i) = sqrt(p_x*p_x + p_y*p_y);
         Zsig(1, i) = atan2(p_y, p_x);
         Zsig(2, i) = (p_x*cos(yaw)*v + p_y*sin(yaw)*v)/Zsig(0, i);
@@ -312,7 +312,7 @@ void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out){
 void UKF::PredictLaserMeasurement(VectorXd* z_out, MatrixXd* S_out){
     int n_z = 2;
       // create matrix for sigma points in measurement space
-    MatrixXd Zsig = MatrixXd(n_z, 2 * n_aug + 1);
+    MatrixXd Zsig = MatrixXd(n_z, 2 * n_aug_ + 1);
     
     // mean predicted measurement
     VectorXd z_pred = VectorXd(n_z);
@@ -321,9 +321,9 @@ void UKF::PredictLaserMeasurement(VectorXd* z_out, MatrixXd* S_out){
     MatrixXd S = MatrixXd(n_z, n_z);
 
     // transform sigma points into measurement space
-    for (int i = 0; i < Xsig_pred.cols(); i++){
-        Zsig(0, i) = Xsig_pred(0, i);
-        Zsig(1, i) = Xsig_pred(1, i);
+    for (int i = 0; i < Xsig_pred_.cols(); i++){
+        Zsig(0, i) = Xsig_pred_(0, i);
+        Zsig(1, i) = Xsig_pred_(1, i);
     }
     // calculate mean predicted measurement
     z_pred = Zsig * weights;
@@ -351,18 +351,18 @@ void UKF::UpdateStateRadar(){
     // calculate cross correlation matrix
     Tc.fill(0);
     for (int i = 0; i < Zsig.cols(); i++){
-        Xsig_pred.col(i) -= x;
-        while (Xsig_pred.col(i)(3)> M_PI) Xsig_pred.col(i)(3)-=2.*M_PI;
-        while (Xsig_pred.col(i)(3)<-M_PI) Xsig_pred.col(i)(3)+=2.*M_PI;
+        Xsig_pred_.col(i) -= x;
+        while (Xsig_pred_.col(i)(3)> M_PI) Xsig_pred_.col(i)(3)-=2.*M_PI;
+        while (Xsig_pred_.col(i)(3)<-M_PI) Xsig_pred_.col(i)(3)+=2.*M_PI;
         Zsig.col(i) -= z_pred;
         while (Zsig.col(i)(1)> M_PI) Zsig.col(i)(1)-=2.*M_PI;
         while (Zsig.col(i)(1)<-M_PI) Zsig.col(i)(1)+=2.*M_PI;
         
-        Tc += weights(i) * Xsig_pred.col(i) * Zsig.col(i).transpose();
+        Tc += weights(i) * Xsig_pred_.col(i) * Zsig.col(i).transpose();
     }
     
     // calculate Kalman gain K;
-    MatrixXd K = MatrixXd(n_x, n_z);
+    MatrixXd K = MatrixXd(n_x_, n_z);
     K = Tc * S.inverse();
     // update state mean and covariance matrix
     VectorXd y = z - z_pred;
@@ -378,7 +378,7 @@ void UKF::UpdateStateRadar(){
 void UKF::UpdateStateLaser(){
   // create matrix for cross correlation Tc
 
-    MatrixXd Tc = MatrixXd(n_x, n_z);
+    MatrixXd Tc = MatrixXd(n_x_, n_z_);
     
     /**
      * Student part begin
@@ -387,16 +387,16 @@ void UKF::UpdateStateLaser(){
     // calculate cross correlation matrix
     Tc.fill(0);
     for (int i = 0; i < Zsig.cols(); i++){
-        Xsig_pred.col(i) -= x;
-        while (Xsig_pred.col(i)(3)> M_PI) Xsig_pred.col(i)(3)-=2.*M_PI;
-        while (Xsig_pred.col(i)(3)<-M_PI) Xsig_pred.col(i)(3)+=2.*M_PI;
+        Xsig_pred_.col(i) -= x;
+        while (Xsig_pred_.col(i)(3)> M_PI) Xsig_pred_.col(i)(3)-=2.*M_PI;
+        while (Xsig_pred_.col(i)(3)<-M_PI) Xsig_pred_.col(i)(3)+=2.*M_PI;
         Zsig.col(i) -= z_pred;
         
-        Tc += weights(i) * Xsig_pred.col(i) * Zsig.col(i).transpose();
+        Tc += weights(i) * Xsig_pred_.col(i) * Zsig.col(i).transpose();
     }
     
     // calculate Kalman gain K;
-    MatrixXd K = MatrixXd(n_x, n_z);
+    MatrixXd K = MatrixXd(n_x_, n_z_);
     K = Tc * S.inverse();
     // update state mean and covariance matrix
     VectorXd y = z - z_pred;
