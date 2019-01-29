@@ -4,6 +4,9 @@
 #include "Eigen/Dense"
 #include "measurement_package.h"
 
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
+
 class UKF {
   private:
   void AugmentedSigmaPoints(MatrixXd* Xsig_out);
@@ -11,8 +14,8 @@ class UKF {
   void PredictMeanAndCovariance();
   void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out);
   void PredictLidarMeasurement(VectorXd* z_out, MatrixXd* S_out);
-  void UKF::UpdateStateLaser();
-  void UKF::UpdateStateRadar();
+  void UpdateStateLaser();
+  void UpdateStateRadar();
 
 
   public:

@@ -62,18 +62,18 @@ UKF::UKF() {
         0, 0, 0, 1, 0,
         0, 0, 0, 0, 1;
 
-  MatrixXd Xsig_pred = MatrixXd(n_x, 2 * n_aug + 1);
+  MatrixXd Xsig_pred_ = MatrixXd(n_x, 2 * n_aug + 1);
 
   n_x_ = 5;
   n_aug_ = 7;
   lambda_ = 3 - n_aug_;
 
   // create vector for weights
-  VectorXd weights = VectorXd(2*n_aug+1);
+  VectorXd weights_ = VectorXd(2*n_aug_+1);
 
   // set weights
-  weights.fill(1/(2*(lambda + n_aug)));
-  weights(0) = lambda/(lambda + n_aug); 
+  weights_.fill(1/(2*(lambda_ + n_aug_)));
+  weights_(0) = lambda_/(lambda_ + n_aug_); 
 }
 
 UKF::~UKF() {}
@@ -102,18 +102,18 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       */
       float ro = measurement_pack.raw_measurements_(0);
       float teta = measurement_pack.raw_measurements_(1);
-      ekf_.x_(0) = ro * cos(teta);
-      ekf_.x_(1) = ro * sin(teta);
-      ekf_.x_(2) = 0;
-      ekf_.x_(3) = 0;
-      ekf_.x_(4) = 0;
+      x_(0) = ro * cos(teta);
+      x_(1) = ro * sin(teta);
+      x_(2) = 0;
+      x_(3) = 0;
+      x_(4) = 0;
       }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-      ekf_.x_(0) = measurement_pack.raw_measurements_(0);
-      ekf_.x_(1) = measurement_pack.raw_measurements_(1);
-      ekf_.x_(2) = 0;
-      ekf_.x_(3) = 0;
-      ekf_.x_(4) = 0;
+      x_(0) = measurement_pack.raw_measurements_(0);
+      x_(1) = measurement_pack.raw_measurements_(1);
+      x_(2) = 0;
+      x_(3) = 0;
+      x_(4) = 0;
       }
       
     time_us_ = measurement_pack.timestamp_;
