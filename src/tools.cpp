@@ -1,7 +1,10 @@
 #include "tools.h"
 
+
 using Eigen::VectorXd;
 using std::vector;
+using std::cout;
+using std::endl;
 
 Tools::Tools() {}
 

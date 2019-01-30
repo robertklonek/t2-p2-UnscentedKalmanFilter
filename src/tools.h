@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Eigen/Dense"
+#include <iostream>
 
 class Tools {
  public:
