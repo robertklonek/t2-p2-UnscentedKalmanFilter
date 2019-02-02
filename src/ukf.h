@@ -4,6 +4,7 @@
 #include "Eigen/Dense"
 #include "measurement_package.h"
 #include <iostream>
+#include <string>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -15,6 +16,7 @@ class UKF {
   void AugmentedSigmaPoints(MatrixXd* Xsig_out);
   void PredictSigmaPoints(MatrixXd Xsig_aug, double delta_t);
   void PredictMeanAndCovariance();
+  void NIS(MatrixXd S, VectorXd z_pred, VectorXd z_meas, bool type);
 
 
   public:
@@ -63,6 +65,12 @@ class UKF {
   // if this is false, radar measurements will be ignored (except for init)
   bool use_radar_;
 
+  // if this is true, initialisation will be done based on two measurements
+  bool use_second_init_;
+
+  // if this is true, NIS values will be calculated and saved to files
+  bool use_NIS_;
+
   // state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   Eigen::VectorXd x_;
 
@@ -108,9 +116,25 @@ class UKF {
   // Sigma point spreading parameter
   double lambda_;
 
-  //help var
+  //variables for second initialisation loop - for calculating teta and speed: x_(2) and x_(3)
+  bool is_second_initialized_;
   int iter_;
-  int init_iter_;
+  float x_init_1_;
+  float y_init_1_;
+  float x_init_2_;
+  float y_init_2_;
+
+  float NIS_radar_;
+  float NIS_laser_;
+
+  const double NIS_RADAR_050 = 7.815;
+  const double NIS_LASER_050 = 5.991;
+
+  int NIS_radar_total_;
+  int NIS_laser_total_;
+  int NIS_radar_overlimit_;
+  int NIS_laser_overlimit_;
+
 };
 
 #endif  // UKF_H
