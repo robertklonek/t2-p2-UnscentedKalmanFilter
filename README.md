@@ -114,7 +114,7 @@ In the two-step initialisation method the angle is very close to the actual:
 
 As the in final result the X velocity has been significantly reduced:
 
-![](img/data2_second_init.png)
+![](img/dataset2_second_init.png)
 
 Unfortunatelly the Y velocity increased. To check how exactly the init values infuence the result the following test was prepared: the init values for the velocity and yaw angle was forced in the program in the initialization step accordingly to ``5`` and ``3.1``. Acordingly the coefficients in covariance matrix were rediced. The result is absolutaly great:
 
