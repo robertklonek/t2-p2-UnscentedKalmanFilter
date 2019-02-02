@@ -103,7 +103,7 @@ One of the reason was, that the initial ``teta`` was set to ``0``. In the first 
 In the two-step initialisation the angle is more close to the actual:
 ![im5](img/dataset2_x_init.png)
 As the final result has better 3 of four RMSE values
-![im6](img/dataset2_second_init.png)
+![im6](img/dataset2_second_init.png | width=100)
 ## Stage 4 NIS
 In the last stage the consistency were checked. In function:
 ```
@@ -119,7 +119,7 @@ the NIS value is calculated for every measuremnt sample and written to a file.
 ![im8](img/Radar_4.4.png)
 In the charts the red line is the expect NIS value for 5% values. For Radar it turned out to be 4.4%, and for laser 2.8%.
 The results could be interpeted as acceptable, and consistency of the filter is confirmed, but some little aditional play with the noise parameters were conducted, finally lead to a little improvement:
-![im9](img/datase1_2.2_0.34_NIS_4.0_2.8.png)
+![im9](img/datase1_2.2_0.34_NIS_4.0_2.8.png | width=100)
 With final RMSE values:
 * X: 0.0761, 
 * Y: 0.0810, 
