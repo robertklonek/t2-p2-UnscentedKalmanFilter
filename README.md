@@ -81,6 +81,7 @@ Above functions are a complete Prediction step. They are called in ``void UKF::P
 After completing first step and run the simulator, the results where slightly worse then with Extended Kalman filter (see https://github.com/robertklonek/t2-p1-ExtendedKalmanFilter), and far below the project expectations:
 
 ![im1](img/first_result.png)
+<img align="center" width="50%" height="50%" src="img/first_result.png">
 
 The filter parameters needed to be changed. According to the project description the following should be taken into the account: covariance matrix ``P``, process noises ``std_a_`` and ``std_yawdd_``.  Covariance matrix should indicate that 3 last elements are uknown, so for them initial values should be much higher than for the first two (positions of the object). It was also obvious that inital values of process noises were overestimated. After some trials, the following brought the satisfying results:
 ```
