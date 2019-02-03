@@ -3,7 +3,7 @@ Self-Driving Car Engineer Nanodegree Program
 
 In this project utilize an Unscented Kalman Filter to estimate the state of a moving object of interest with noisy lidar and radar measurements. Passing the project requires obtaining RMSE values that are lower that the tolerance outlined in the project rubric. 
 
-Project starter code and installation instructions you can find ![here](https://github.com/udacity/CarND-Unscented-Kalman-Filter-Project)
+Project starter code and installation instructions you can find here https://github.com/udacity/CarND-Unscented-Kalman-Filter-Project
 
 
 ## Step 1 - make UKF running
@@ -59,31 +59,31 @@ And what is more, these result met project specifications:
 
 ## Step 3 - Initialisation
 
-But for the second data set, result were much different:
+But for the second data set, ``VX`` appeared much higher:
 
 <p align="center">
 <img align="center" width="50%" height="50%" src="img/dataset2_default.png">
 </p>
 
-One of the reason was, that the initial yaw angle was unknown and set to ``0``. In the first data set the object is starting moving in then right direction with yaw angle around ``0``. In the second the object is moving oposite with init yaw angle around ``180`` degree. One of the possible improvement was to make better initialisation of yaw angle in ``x`` state vector. To get information about it, the **two steps initialisation** was introduced. In that solution, we cathered two measurements data before triggering Kalman filter. Based on those the initial yaw angle and velocity can be estimated. The effect could be seen by checking the first prediction of Kalman filter. In the ordinary initialisation the vector has ``x`` has yaw angle close to zero:
+One of the reason was, that the initial yaw angle was unknown and set to ``0``. In the first data set the object is starting moving in the right direction with yaw angle around ``0``. In the second the object is moving oposite with init yaw angle around ``180`` degree. One of the possible improvement was to make better initialisation of yaw angle in ``x`` state vector. To get information about it, the **two steps initialisation** was introduced. In that solution, we gathered two measurements data before triggering Kalman filter. Based on those two the initial yaw angle and velocity can be estimated. The effect could be seen by checking the first prediction of Kalman filter. In the ordinary initialisation the vector has ``x`` has yaw angle close to zero (second row from bottom):
 
 <p align="center">
-<img align="center" width="50%" height="50%" src="img/dataset2_x_default.png">
+<img align="center" width="20%" height="20%" src="img/dataset2_x_default.png">
 </p>
 
-In the two-step initialisation method the angle is close to the actual:
+In the two-step initialisation method the angle is much closer to the actual:
 
 <p align="center">
-<img align="center" width="50%" height="50%" src="img/dataset2_x_init.png">
+<img align="center" width="20%" height="20%" src="img/dataset2_x_init.png">
 </p>
 
-In the final result the ``RMSE VX`` has been significantly reduced:
+In the final result the ``VX`` has been significantly reduced:
 
 <p align="center">
 <img align="center" width="50%" height="50%" src="img/dataset2_second_init.png">
 </p>
 
-Unfortunatelly the ``VY`` velocity increased. To check how exactly the init values infuence the final result the following test was prepared: the init values for the velocity and yaw angle was forced in the initialization step accordingly to ``5`` and ``3.1``. Coresponding coefficients in covariance matrix ``P`` were reduced. The result is absolutely great:
+Unfortunatelly the ``VY`` velocity increased. This is becouse to the fact that just two measurements can be not enough to properly init the yaw angle. To check how far exactly the init values influence the final result the following test was prepared: the init values for the velocity and yaw angle was forced in the initialization step accordingly to ``5`` and ``3.1``. Coresponding coefficients in covariance matrix ``P`` were reduced. The result is absolutely great:
 
 <p align="center">
 <img align="center" width="50%" height="50%" src="img/data2_manual.png">
@@ -91,7 +91,7 @@ Unfortunatelly the ``VY`` velocity increased. To check how exactly the init valu
 
 It clearly shows how big the initial values are important for Kalman filter. The proposed two-step method could be furhter improved and achive result much better that with standard initialization method.
 
-## Step 4 NIS
+## Step - 4 NIS
 In the last step the filter consistency were checked. In following function:
 ```
   /**
