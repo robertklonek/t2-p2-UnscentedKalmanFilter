@@ -117,10 +117,22 @@ The results could be accepted, and consistency of the filter would be confirmed,
 <img align="center" width="50%" height="50%" src="img/datase1_2.2_0.34_NIS_4.0_2.8.png">
 </p>
 
+For parameters:
+```
+  P_ << 0.1, 0,   0, 0, 0,
+        0,   0.1, 0, 0, 0,
+        0,   0,   1, 0, 0,
+        0,   0,   0, 1, 0,
+        0,   0,   0, 0, 1;
+
+  std_a_ = 2.2;
+  std_yawdd_ = 0.34;
+```
+
 With final RMSE values:
 * X: 0.0761, 
 * Y: 0.0810, 
-* VX 0.3435, 
-* VY 0.2598
+* VX: 0.3435, 
+* VY: 0.2598
 
 
