@@ -3,57 +3,11 @@ Self-Driving Car Engineer Nanodegree Program
 
 In this project utilize an Unscented Kalman Filter to estimate the state of a moving object of interest with noisy lidar and radar measurements. Passing the project requires obtaining RMSE values that are lower that the tolerance outlined in the project rubric. 
 
-This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases).
-
-This repository includes two files that can be used to set up and intall [uWebSocketIO](https://github.com/uWebSockets/uWebSockets) for either Linux or Mac systems. For windows you can use either Docker, VMware, or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) to install uWebSocketIO. Please see the uWebSocketIO Starter Guide page in the classroom within the EKF Project lesson for the required version and installation scripts.
-
-Once the install for uWebSocketIO is complete, the main program can be built and ran by doing the following from the project top directory.
-
-1. mkdir build
-2. cd build
-3. cmake ..
-4. make
-5. ./UnscentedKF
-
-Tips for setting up your environment can be found in the classroom lesson for the EKF project.
-
-Note that the programs that need to be written to accomplish the project are src/ukf.cpp, src/ukf.h, tools.cpp, and tools.h
-
-The program main.cpp has already been filled out, but feel free to modify it.
-
-Here is the main protocol that main.cpp uses for uWebSocketIO in communicating with the simulator.
+Project starter code and installation instructions you can find ![here](https://github.com/udacity/CarND-Unscented-Kalman-Filter-Project)
 
 
-INPUT: values provided by the simulator to the c++ program
-
-["sensor_measurement"] => the measurment that the simulator observed (either lidar or radar)
-
-
-OUTPUT: values provided by the c++ program to the simulator
-
-["estimate_x"] <= kalman filter estimated position x
-["estimate_y"] <= kalman filter estimated position y
-["rmse_x"]
-["rmse_y"]
-["rmse_vx"]
-["rmse_vy"]
-
----
-
-## Other Important Dependencies
-* cmake >= 3.5
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
-
-## Stage 1 - make UKF run
-In order to bring filter to life, all Kalman filter steps needed to be implemented within a given program structure. For better readability, some additional methods were added to the class:
+## Step 1 - make UKF running
+In order to bring the filter to life, all Kalman filter steps needed to be implemented within a given program structure. For better readability, some additional methods were added to the class:
 ```
   /**
    * Generating Augmented Sigma Points Matrix
@@ -71,19 +25,21 @@ In order to bring filter to life, all Kalman filter steps needed to be implement
    */
   void PredictMeanAndCovariance();
 ```
-Above functions are a complete Prediction step. They are called in ``void UKF::Prediction(double delta_t)``. The update step is implemented separately for laser and lider with using the prepared in starter code methods: 
+Above functions together are a complete Prediction step. They are called in ``void UKF::Prediction(double delta_t)``. 
+The update step is implemented separately for laser and lider with using prepared in starter code methods: 
 ```
   void UpdateLidar(MeasurementPackage meas_package);
   void UpdateRadar(MeasurementPackage meas_package);
-  ```
+```
   
 ## Step 2 - UKF tuning
-After completing first step and run the simulator, the results where slightly worse then with Extended Kalman filter (see https://github.com/robertklonek/t2-p1-ExtendedKalmanFilter), and far below the project expectations:
+After completing first step and running the simulator, the results where slightly worse then with Extended Kalman filter (see https://github.com/robertklonek/t2-p1-ExtendedKalmanFilter), and far below the project expectations:
 
-![im1](img/first_result.png)
+<p align="center">
 <img align="center" width="50%" height="50%" src="img/first_result.png">
+</p>
 
-The filter parameters needed to be changed. According to the project description the following should be taken into the account: covariance matrix ``P``, process noises ``std_a_`` and ``std_yawdd_``.  Covariance matrix should indicate that 3 last elements are uknown, so for them initial values should be much higher than for the first two (positions of the object). It was also obvious that inital values of process noises were overestimated. After some trials, the following brought the satisfying results:
+The filter parameters needed to be changed. According to the project description the following should be taken into the account: covariance matrix ``P``, process noises ``std_a_`` and ``std_yawdd_``.  Covariance matrix should indicate that 3 last elements are uknown, so for them, initial values should be much higher than for the first two. It was also obvious that inital values of process noises were overestimated. After some trials, the following setting brought the satisfying results:
 ```
   P_ << 0.1, 0,   0, 0, 0,
         0,   0.1, 0, 0, 0,
@@ -97,34 +53,46 @@ The filter parameters needed to be changed. According to the project description
 
 And what is more, these result met project specifications:
 
-![im2](img/dataset1_best.png)
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/dataset1_best.png">
+</p>
 
 ## Step 3 - Initialisation
 
-But for the second data set, result were still bad:
+But for the second data set, result were much different:
 
-![im3](img/dataset2_default.png)
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/dataset2_default.png">
+</p>
 
-One of the reason was, that the initial yaw angle was unknown and set to ``0``. In the first data set the object is starting moving in then right direction with yaw angle around ``0``. In the second the object is moving oposite with init yaw angle around ``180`` degree. One of the possible improvement was to make better initialisation of yaw angle in ``x`` state vector. To get information about it, the **two steps initialisation** was introduced. In that solution, we cathered two measurements data before triggering Kalman filter. Based on those the initial yaw angle and velocity can be estimated. The effect could be seen by checking the first prediction of Kalman filter. In the ordinary initialisation the vector has ``x`` has yaw abgle close to zero:
+One of the reason was, that the initial yaw angle was unknown and set to ``0``. In the first data set the object is starting moving in then right direction with yaw angle around ``0``. In the second the object is moving oposite with init yaw angle around ``180`` degree. One of the possible improvement was to make better initialisation of yaw angle in ``x`` state vector. To get information about it, the **two steps initialisation** was introduced. In that solution, we cathered two measurements data before triggering Kalman filter. Based on those the initial yaw angle and velocity can be estimated. The effect could be seen by checking the first prediction of Kalman filter. In the ordinary initialisation the vector has ``x`` has yaw angle close to zero:
 
-![im4](img/dataset2_x_default.png)
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/dataset2_x_default.png">
+</p>
 
-In the two-step initialisation method the angle is very close to the actual:
+In the two-step initialisation method the angle is close to the actual:
 
-![im5](img/dataset2_x_init.png)
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/dataset2_x_init.png">
+</p>
 
-As the in final result the X velocity has been significantly reduced:
+In the final result the ``RMSE VX`` has been significantly reduced:
 
-![](img/dataset2_second_init.png)
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/dataset2_second_init.png">
+</p>
 
-Unfortunatelly the Y velocity increased. To check how exactly the init values infuence the result the following test was prepared: the init values for the velocity and yaw angle was forced in the program in the initialization step accordingly to ``5`` and ``3.1``. Acordingly the coefficients in covariance matrix were rediced. The result is absolutaly great:
+Unfortunatelly the ``VY`` velocity increased. To check how exactly the init values infuence the final result the following test was prepared: the init values for the velocity and yaw angle was forced in the initialization step accordingly to ``5`` and ``3.1``. Coresponding coefficients in covariance matrix ``P`` were reduced. The result is absolutely great:
 
-![im6](img/data2_manual.png)
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/data2_manual.png">
+</p>
 
-It clearly shows how big the initial values are important for Kalman filter. The proposed two-step method could be furhter improved and achive result close to that from above.
+It clearly shows how big the initial values are important for Kalman filter. The proposed two-step method could be furhter improved and achive result much better that with standard initialization method.
 
-## Stage 4 NIS
-In the last stage the filter consistency were checked. In function:
+## Step 4 NIS
+In the last step the filter consistency were checked. In following function:
 ```
   /**
    * Calculating Normalized Innovation Squared value for consistency check
@@ -135,13 +103,19 @@ In the last stage the filter consistency were checked. In function:
 ```
 the NIS value is calculated for every measurement sample and written into the file.
 
-![im7](img/Laser_2.8.png)
-![im8](img/Radar_4.4.png)
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/Laser_2.8.png">
+</p>
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/Radar_4.4.png">
+</p>
 
-In the charts above the red line is the expect NIS value for 5% values. For Radar it turned out to be 4.4%, and for laser 2.8%.
-The results could be accepted, and consistency of the filter is confirmed, but some little aditional play with the noise parameters were conducted, finally lead to a little improvement:
+In the charts above the red line is the expected NIS value for 5% values. For Radar it turned out to be 4.4%, and for laser 2.8%.
+The results could be accepted, and consistency of the filter would be confirmed, but some little aditional tuning with the noise parameters were conducted, finally led to following improvement:
 
-![im9](img/datase1_2.2_0.34_NIS_4.0_2.8.png)
+<p align="center">
+<img align="center" width="50%" height="50%" src="img/datase1_2.2_0.34_NIS_4.0_2.8.png">
+</p>
 
 With final RMSE values:
 * X: 0.0761, 
